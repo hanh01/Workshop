@@ -1,0 +1,55 @@
+b1:New Project - MVC - Model and Model
+b2:vào Project-> OrderStore Properties -> Debug -> sửa cổng
+b3: Sửa layout
+b4: Xóa hết trong HomeController
+b5: Sửa Index.cshtml
+b6: Model- Add new class- Product.cs
+b7: Trong Product.cs -> xóa hết using, thêm using System.ComponentModel.DataAnnotations.Schema;
+b8: Tools -> Nuget ->Package
+	- dotnet clear
+	- PM>  dotnet add package Microsoft.EntityFrameworkCore.Design
+	- PM> dotnet add OrderStore package Microsorf.EntityFameworkCore.SqlServer
+	- PM> dotnet tool install --global dotnet-ef //Install Entity Framework
+b9: Open appsettings.json add:
+	"AllowedHosts": "*",
+  	"ConnectionStrings": {
+    	"OrderStoreConnection" :  "Server=(localdb)\\MSSQLocalDB;Database=OrderStore;MultipleActiveResultSets=true"
+  	}
+b10: In Models -> add new StoreDbContext.cs
+	
+using Microsoft.EntityFrameworkCore;
+
+namespace OrderStore.Models
+{
+    public class StoreDbContext : DbContext
+    {
+        public StoreDbContext(DbContextOptions<StoreDbContext> options)
+            : base(options) { }
+
+        public DbSet<Product> Products { get; set; }
+    }
+}
+b11: +) thêm thư viện:
+	using Microsoft.EntityFrameworkCore;
+	using OrderStore.Models;
+     +) sửa IConfiguration: public IConfiguration Configuration { get; set; }
+     +) thêm vào  ConfigureServices: 
+		services.AddDbContext<StoreDbContext>(
+                opts =>
+                {
+                    opts.UseSqlServer(Configuration["ConnectionStrings:OrderStoreConnection"]);
+                }
+                );
+b12: tạo IStoreRepository trong Models:
+		public interface IStoreRepository
+    	{
+        	IQueryable<Product> Products { get; }
+    	}
+b13 : tạo một class implement ra EFStoreRespository
+b14 : trong Startup.cs thêm vào phần Configuration : services.AddScoped<IStoreRepository, EFStoreRepository>();
+b15: Tạo database: chọn Tools-> Nuget... -> Package
+  	- PM> dotnet ef migrations add --project OrderStore 
+b16: trong Models tạo SeedData.cs
+b17. Trong Startup.cs add: SeedData.EnsurePopulated(app);
+
+
