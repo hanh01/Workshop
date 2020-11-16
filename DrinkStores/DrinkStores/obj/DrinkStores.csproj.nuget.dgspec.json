@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Visual studio code\\DrinkStores\\DrinkStores\\DrinkStores.csproj": {}
+    "D:\\Workshop\\DrinkStores\\DrinkStores\\DrinkStores.csproj": {}
   },
   "projects": {
-    "D:\\Visual studio code\\DrinkStores\\DrinkStores\\DrinkStores.csproj": {
+    "D:\\Workshop\\DrinkStores\\DrinkStores\\DrinkStores.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Visual studio code\\DrinkStores\\DrinkStores\\DrinkStores.csproj",
+        "projectUniqueName": "D:\\Workshop\\DrinkStores\\DrinkStores\\DrinkStores.csproj",
         "projectName": "DrinkStores",
-        "projectPath": "D:\\Visual studio code\\DrinkStores\\DrinkStores\\DrinkStores.csproj",
+        "projectPath": "D:\\Workshop\\DrinkStores\\DrinkStores\\DrinkStores.csproj",
         "packagesPath": "C:\\Users\\Admin\\.nuget\\packages\\",
-        "outputPath": "D:\\Visual studio code\\DrinkStores\\DrinkStores\\obj\\",
+        "outputPath": "D:\\Workshop\\DrinkStores\\DrinkStores\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Admin\\AppData\\Roaming\\NuGet\\NuGet.Config",

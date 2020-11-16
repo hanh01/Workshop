@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VvLx+f9bNxAqTlt/9gR2FCOhk/oubHBYvtrxiRTbnQYN0hI33aAAv8unQKnCSxj3HJeFuP+rEZMmnF0jcXQL2w==",
+  "dgSpecHash": "rz1mYdQlfMfi+9El9a18XZ/gxNHMqofQ6jS0sIC1w8KR8Zxzu/Zi9cq2iy04LDoj2xFe+a/izobD8RswyqRP5g==",
   "success": true,
-  "projectFilePath": "D:\\Visual studio code\\DrinkStores\\DrinkStores\\DrinkStores.csproj",
+  "projectFilePath": "D:\\Workshop\\DrinkStores\\DrinkStores\\DrinkStores.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Admin\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\Admin\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",

@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace DrinkStores.Models
 {
-    public class IStoreRepository
+    public interface IStoreRepository
     {
-        private IQueryable<Product> Products { get; }
+        IQueryable<Product> Products { get; }
     }
 }
