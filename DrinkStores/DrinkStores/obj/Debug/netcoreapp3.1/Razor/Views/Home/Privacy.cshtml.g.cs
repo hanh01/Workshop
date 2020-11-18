@@ -26,8 +26,15 @@ using DrinkStores.Models;
 #line default
 #line hidden
 #nullable disable
+#nullable restore
+#line 3 "D:\Workshop\DrinkStores\DrinkStores\Views\_ViewImports.cshtml"
+using DrinkStores.Models.ViewModels;
+
+#line default
+#line hidden
+#nullable disable
     [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"d8ddb6bffa5a9b264bf8f89038bf03c234083fd3", @"/Views/Home/Privacy.cshtml")]
-    [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"b9cb5ce377e2a3c4c9add38d3caed608d653bb21", @"/Views/_ViewImports.cshtml")]
+    [global::Microsoft.AspNetCore.Razor.Hosting.RazorSourceChecksumAttribute(@"SHA1", @"d4482e3701ab70ac2a90987ac17c8c2489678f31", @"/Views/_ViewImports.cshtml")]
     public class Views_Home_Privacy : global::Microsoft.AspNetCore.Mvc.Razor.RazorPage<dynamic>
     {
         #pragma warning disable 1998
