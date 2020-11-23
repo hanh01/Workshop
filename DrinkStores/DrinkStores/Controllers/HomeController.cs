@@ -19,10 +19,11 @@ namespace DrinkStores.Controllers
         }
 
 
-        public ViewResult Index(int productPage = 1)
+        public ViewResult Index(string status,int productPage = 1)
             => View(new ProductListViewModel
             {
                 Products = repository.Products
+                .Where(p => status == null || p.Status == status)
                 .OrderBy(p => p.ProductID)
                 .Skip((productPage - 1) * PageSize)
                 .Take(PageSize),

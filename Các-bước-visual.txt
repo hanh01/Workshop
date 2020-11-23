@@ -1,55 +1,284 @@
-b1:New Project - MVC - Model and Model
-b2:vào Project-> OrderStore Properties -> Debug -> sửa cổng
-b3: Sửa layout
-b4: Xóa hết trong HomeController
-b5: Sửa Index.cshtml
-b6: Model- Add new class- Product.cs
-b7: Trong Product.cs -> xóa hết using, thêm using System.ComponentModel.DataAnnotations.Schema;
-b8: Tools -> Nuget ->Package
-	- dotnet clear
-	- PM>  dotnet add package Microsoft.EntityFrameworkCore.Design
-	- PM> dotnet add OrderStore package Microsorf.EntityFameworkCore.SqlServer
-	- PM> dotnet tool install --global dotnet-ef //Install Entity Framework
-b9: Open appsettings.json add:
-	"AllowedHosts": "*",
-  	"ConnectionStrings": {
-    	"OrderStoreConnection" :  "Server=(localdb)\\MSSQLocalDB;Database=OrderStore;MultipleActiveResultSets=true"
-  	}
-b10: In Models -> add new StoreDbContext.cs
-	
-using Microsoft.EntityFrameworkCore;
+                                                 Order Store (O1)
+B1 : Tạo project vs MVC
 
-namespace OrderStore.Models
-{
-    public class StoreDbContext : DbContext
-    {
-        public StoreDbContext(DbContextOptions<StoreDbContext> options)
-            : base(options) { }
+B2 : Đổi cổng
 
-        public DbSet<Product> Products { get; set; }
-    }
-}
-b11: +) thêm thư viện:
-	using Microsoft.EntityFrameworkCore;
-	using OrderStore.Models;
-     +) sửa IConfiguration: public IConfiguration Configuration { get; set; }
-     +) thêm vào  ConfigureServices: 
-		services.AddDbContext<StoreDbContext>(
+B3 : Sửa layout
+
+B4 : Xóa hết trong HomeController
+
+B5 : Sửa Index.cshtml
+
+B6 : Model - Add new Class 
+
+B7 : Cài thư viện "dotnet add <tên prj> package Microsoft.EntityFrameworkCore.Design"
+
+B8 : Cài thư viện "dotnet add OrderStore package Microsoft.EntityFrameworkCore.SqlServer "
+
+B9 : Cài thư viện "dotnet tool install --global dotnet-ef"
+
+B10: Sửa file appsettings.json
+
+      "AllowedHosts": "*",
+      "ConnectionString": {
+        "AhihiStoreConnection" :  "Server= (localdb)\\MSSQLocalDB; Database=OredrStore;MultipleActiveResultSets = true"
+      }
+
+B11 : Vafo Startup.cs chirnh sửa " public IConfiguration Configuration { get; set; }" và
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllersWithViews();
+            services.AddDbContext<StoreDbContext>(
                 opts =>
                 {
-                    opts.UseSqlServer(Configuration["ConnectionStrings:OrderStoreConnection"]);
+                    opts.UseSqlServer  //Có thể lỗi do cài thiếu thư viện
+                    (Configuration["ConnectionStrings: AhihiStoreConnection"]);
                 }
                 );
-b12: tạo IStoreRepository trong Models:
-		public interface IStoreRepository
-    	{
-        	IQueryable<Product> Products { get; }
-    	}
-b13 : tạo một class implement ra EFStoreRespository
-b14 : trong Startup.cs thêm vào phần Configuration : services.AddScoped<IStoreRepository, EFStoreRepository>();
-b15: Tạo database: chọn Tools-> Nuget... -> Package
-  	- PM> dotnet ef migrations add --project OrderStore 
-b16: trong Models tạo SeedData.cs
-b17. Trong Startup.cs add: SeedData.EnsurePopulated(app);
+        }
+
+B12 : Tạo repository trong model
+  
+B13 : chajy leejnh 'dotnet ef migrations add --project OrderStore Intial'
 
 
+
+                                              Order Store (O2)
+                                              
+B1 : Chạy lệnh " dotnet ef database drop --project OrderStore1 --force --context StoreDbContext "     
+
+B2 : Sửa file HomeCOntroller.cs 
+
+    public class HomeController : Controller
+    {
+        private IStoreReposiitory repository;
+
+        public HomeController(IStoreReposiitory repo)
+        {
+            repository = repo;
+        }
+
+        public IActionResult Index()
+        => View(repository.Products);
+    }        
+
+B3: Sửa IStoreRepository.cs 
+
+    public interface IStoreRepository
+    {
+        IQueryable<Product> Products { get; }
+    }  
+
+B4 : Sửa Index.cshtml
+
+     @model IQueryable<Product>
+     @foreach (var p in Model)
+     {
+        <div>
+          <h3>@p.Name</h3>
+          @p.Description
+          <h4>@p.Price.ToString("c")</h4>
+        </div>
+      }
+
+B5 : Có thể tạo phân trang => chỉnh sửa HomeController
+
+    public class HomeController : Controller
+    {
+        private IStoreRepository repository;
+        public int PageSize = 2;                  // Quy định có bn sp trên 1 page
+
+        public HomeController(IStoreRepository repo)
+        {
+            repository = repo;
+        }
+
+        public ViewResult Index(int productPage = 1)
+        => View(repository.Products
+            .OrderBy(p => p.ProductID)                 
+            .Skip((productPage -1) *PageSize)
+            .Take(PageSize)
+            );
+    }
+
+B6 : Tạo forder ViewModels => tạo file PagingInfo
+
+    public class PagingInfo
+    {
+        public int TotalItems { get; set; }
+        public int ItemsPerPage { get; set; }
+        public int CurrentPage { get; set; }
+        public int TotalPages => (int)Math.Ceiling((decimal)TotalItems/ItemsPerPage);
+    }
+
+B7.1:  Tajo forder Infrastructure => tajo PageLinkTagHelper
+
+    [HtmlTargetElement("div", Attributes="page-model")]
+    public class PageLinkTagHelper : TagHelper
+    {
+        private IUrlHelperFactory urlHelperFactory;
+
+        public PageLinkTagHelper(IUrlHelperFactory helperFactory)
+        {
+            urlHelperFactory = helperFactory;
+        }
+
+        [ViewContext]
+        [HtmlAttributeNotBound]
+        public ViewContext ViewContext { get; set; }
+        public PagingInfo PageModel { get; set; }
+        public string PageAction { get; set; }
+        public override void Process(TagHelperContext context, TagHelperOutput output)
+        {
+            IUrlHelper urlHelper = urlHelperFactory.GetUrlHelper(ViewContext);
+            TagBuilder result = new TagBuilder("div");
+            for (int i = 1; i <= PageModel.TotalPages; i++)
+            {
+                TagBuilder tag = new TagBuilder("a");
+                tag.Attributes["href"] = urlHelper.Action(PageAction, new
+                {
+                    productPage = i
+                });
+                tag.InnerHtml.Append(i.ToString());
+                result.InnerHtml.AppendHtml(tag);
+            }
+            output.Content.AppendHtml(result.InnerHtml);
+        }
+    }
+
+B7.2 : Sửa file Index.cshtml
+
+       @model ProductListViewModel
+       @foreach (var p in Model.Products)
+      {
+            <div>
+                 <h3>@p.Name</h3>
+                 @p.Description
+                 <h4>@p.Price.ToString("c")</h4>
+             </div>
+       }
+       <div page-model="@Model.PagingInfo" page-action="Index"></div>
+
+B8: Sửa file Viewports.schtml
+
+       using OrderStore,Models.ViewModels
+       @addTagHelper *, OrderStore
+
+B9 : Tạo ProductListViewModel (ViewModelData)
+
+          public class ProductListViewModel
+          {
+                  public IEnumerable<Product> Products { get; set; }
+                  public PagingInfo PagingInfo { get; set; }
+          }
+
+B10 : Sửa lại file HomeController 
+
+          public ViewResult Index(int productPage = 1)
+        => View(new ProductListViewModel
+        {
+            Products = repository.Products
+            .OrderBy(p => p.ProductID)
+            .Skip((productPage - 1) * PageSize)
+            .Take(PageSize),
+            PagingInfo = new PagingInfo
+            {
+                CurrentPage = productPage,
+                ItemsPerPage = PageSize,
+                TotalItems = repository.Products.Count()
+            }
+        });
+
+B11 : Sửa router trong Startup :
+      endpoints.MapControllerRoute(
+                    "pagination", "Products/Page{productPage}",
+                    new {Controller = "Home", action = "Index"});
+                endpoints.MapDefaultControllerRoute();
+
+
+
+
+                                            Order Store (O3)
+                                            
+B1 : Chạy lệnh " dotnet tool install --global Microsoft.Web.LibraryManager.Cli "
+
+B2: Chạy lệnh " libman init -p cdnjs "
+
+B3: Chạy lệnh  " libman install twitter-bootstrap@4.3.1 -d wwwroot/lib/twitter-bootstrap " để cài bootstrap .
+
+B4 : Suwra link boostrap trong layout.cshtml
+ và 
+
+      <body> 
+          <div class="bg-dark text-white p-2">
+              <span class="navbar-brand ml-2">
+                  Order Store
+              </span>
+          </div>
+          <div class="row m-1 p-1">
+              <div id="categories" class="col-3">
+                 Put something useful here later
+              </div>
+              <div class="col-9">
+                  @RenderBody()
+              </div>
+          </div>
+      </body>
+
+B5 : Thêm các thuộc tính vào PageLinkTagHelper.cs
+
+        public string PageAction { get; set; }
+        public bool PageClassesEnabled { get; set; } = false;
+        public string PageClass { get; set; }
+        public string PageClassNormal { get; set; }
+        public string PageClassSelected { get; set; }
+
+và 
+ 
+                TagBuilder tag = new TagBuilder("a");
+                tag.Attributes["href"] = urlHelper.Action(PageAction, new
+                {
+                    productPage = i
+                });
+                if (PageClassesEnabled)
+                {
+                    tag.AddCssClass(PageClass);
+                    tag.AddCssClass(i == PageModel.CurrentPage
+                        ? PageClassSelected : PageClassNormal);
+                }
+                tag.InnerHtml.Append(i.ToString());
+                result.InnerHtml.AppendHtml(tag);
+
+B6: Shared => add => View =>Razor View -> ProductSummary.cshtml
+
+     @model Product
+
+    <div class="card card-outline-primary m-1 p-1">
+        <div class="bg-faded p-1">
+            <h4>@Model.Name</h4>
+            <span class="badge badge-pill badge-primary" style="float:right">
+                <small>@Model.Price.ToString("c")</small>
+            </span>
+        </div>
+        <div class="card-text p-1">
+            @Model.Description
+        </div>
+    </div>
+
+B7:  Sửa index.cshtml
+
+    @*@model IQueryable<Product>*@
+    @model ProductListViewModel
+
+    @foreach (var p in Model.Products)
+    {
+        <partial name="ProductSummary" model="p"/>
+    }
+
+    <div page-model="@Model.PagingInfo" page-action="Index" page-classes-enabled="true"
+         page-class="btn" page-class-normal="btn-outline-dark"
+         page-class-selected="btn-primary" class="btn-group pull-right m-1">
+
+    </div> 
+                              

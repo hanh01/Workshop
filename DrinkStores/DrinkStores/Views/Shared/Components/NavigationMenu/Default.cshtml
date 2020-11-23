@@ -1,0 +1,16 @@
+﻿@model IEnumerable<string>
+
+<a class="btn btn-block btn-outline-secondary"
+   asp-action="Index"
+   asp-controller="Home"
+   asp-route-category="">Home</a>
+
+@foreach (string status in Model)
+{
+    <a class="btn btn-block btn-outline-secondary"
+       asp-action="Index" asp-controller="Home"
+       asp-route-category="@status"
+       asp-route-productPage="1">@status</a>
+}
+
+

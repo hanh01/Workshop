@@ -53,9 +53,16 @@ namespace DrinkStores
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapControllerRoute("catpage", "{status}/Page{productPage:int}",
+                     new { Controller = "Home", action = "Index" });
                 endpoints.MapControllerRoute(
-                   "pagination", "Products/Page{productPage}",
-                   new { Controller = "Home", action = "Index" });
+                    "page", "Page{productPage:int}",
+                    new { Controller = "Home", action = "Index", productPage = 1 });
+                endpoints.MapControllerRoute("status", "{status}",
+                    new { Controller = "Home", action = "Index", productPage = 1 });
+                endpoints.MapControllerRoute("pagination", "Products/Page{productPage}",
+                    new { Controller = "Home", action = "Index", productPage = 1 });
+
                 endpoints.MapDefaultControllerRoute();
             });
 

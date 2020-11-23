@@ -130,7 +130,6 @@ D:\Workshop\DrinkStores\DrinkStores\bin\Debug\netcoreapp3.1\runtimes\win-x86\nat
 D:\Workshop\DrinkStores\DrinkStores\bin\Debug\netcoreapp3.1\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.pdb
 D:\Workshop\DrinkStores\DrinkStores\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
 D:\Workshop\DrinkStores\DrinkStores\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
-D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.csprojAssemblyReference.cache
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.AssemblyInfoInputs.cache
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.AssemblyInfo.cs
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.RazorAssemblyInfo.cache
@@ -229,3 +228,4 @@ D:\Workshop\DrinkStores\DrinkStores\bin\Debug\netcoreapp3.1\zh-Hant\Microsoft.Co
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.csproj.CoreCompileInputs.cache
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.MvcApplicationPartsAssemblyInfo.cache
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Views\Shared\ProductSummary.cshtml.g.cs
+D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Views\Shared\Components\NavigationMenu\Default.cshtml.g.cs
