@@ -281,4 +281,382 @@ B7:  Sửa index.cshtml
          page-class-selected="btn-primary" class="btn-group pull-right m-1">
 
     </div> 
+
+   
+                                            Order Store (O3)
+B1: Sửa ProductListViewModel.cs
+
+    public class ProductListViewModel
+    {
+        public IEnumerable<Product> Products { get; set; }
+        public PagingInfo PagingInfo { get; set; }
+
+        public string CurrentCategory { get; set; }
+    }
+
+B2:  Sửa HomeController.cs
+
+        public ViewResult Index(string category,int productPage = 1)
+        => View(new ProductListViewModel
+        {
+            Products = repository.Products
+            .Where(p => category == null || p.Category == category)
+            .OrderBy(p => p.ProductID)
+            .Skip((productPage - 1) * PageSize)
+            .Take(PageSize),
+            PagingInfo = new PagingInfo
+            {
+                CurrentPage = productPage,
+                ItemsPerPage = PageSize,
+                TotalItems = repository.Products.Count()
+            }
+        });
+
+B3: Sửa router: 
+
+                endpoints.MapControllerRoute("catpage", "{category}/Page{productPage:int}",
+                    new { Controller = "Home", action = "Index" });
+                endpoints.MapControllerRoute("page", "Page{productPage:int}",
+                    new { Controller = "Home", action = "Index", productPage = 1 });
+                endpoints.MapControllerRoute("category", "{category}",
+                    new { Controller = "Home", action = "Index", productPage = 1 });
+                endpoints.MapControllerRoute("pagination", "Products/Page{productPage}",
+                    new { Controller = "Home", action = "Index", productPage = 1 });
+                endpoints.MapDefaultControllerRoute();
+
+B4: Suwar pagelinktaghelper.cs
+Thêm :
+
+        [HtmlAttributeName(DictionaryAttributePrefix = "page-url-")]
+        public Dictionary<string, object> PageUrlValues { get; set; }
+        = new Dictionary<string, object>(); 
+
+thay đổi :
+
+            IUrlHelper urlHelper = urlHelperFactory.GetUrlHelper(ViewContext);
+            TagBuilder result = new TagBuilder("div");
+            for (int i = 1; i <= PageModel.TotalPages; i++)
+            {
+                TagBuilder tag = new TagBuilder("a");
+                PageUrlValues["productPage"] = i;
+                tag.Attributes["href"] = urlHelper.Action(PageAction, PageUrlValues);
+                //tag.Attributes["href"] = urlHelper.Action(PageAction, new
+                //{
+                //    productPage = i
+                //});
+                if (PageClassesEnabled)
+                {
+                    tag.AddCssClass(PageClass);
+                    tag.AddCssClass(i == PageModel.CurrentPage
+                        ? PageClassSelected : PageClassNormal);
+                }
+                tag.InnerHtml.Append(i.ToString());
+                result.InnerHtml.AppendHtml(tag);
+            }
+            output.Content.AppendHtml(result.InnerHtml);
+
+B5: Sửa index.cshtml
+
+     <div page-model="@Model.PagingInfo" page-action="Index" page-classes-enabled="true"
+     page-class="btn" page-class-normal="btn-outline-dark"
+     page-class-selected="btn-primary" 
+     page-url-category="@Model.CurrentCategory"
+     class="btn-group pull-right m-1"></div> 
+
+B6 : Tạo foder components => class: NavigationMenuViewCoponent
+
+    public class NavigationMenuViewComponent : ViewComponent
+    {
+        public string Invoke()
+        {
+            return "Hello from the Nav View Component";
+        }
+    }
+
+B7 : Thêm vào layout.cshtml
+
+        <div id="categories" class="col-3">
+           @*Put something useful here later*@
+            <vc:navigation-menu/>
+        </div>
+
+B8: Sửa NavigationMenuViewComponent.cs
+
+        private IStoreRepository repository;
+        public NavigationMenuViewComponent(IStoreRepository repo)
+        {
+            repository = repo;
+        }
+
+        public IViewComponentResult Invoke()
+        {
+            return View(repository.Products
+                .Select(x => x.Category)
+                .Distinct()
+                .OrderBy(x => x));
+        }
+
+        //public string Invoke()
+        //{
+        //    return "Hello from the Nav View Component";
+        //}
+
+B9 : Shared => tạo foder Components => tạo foder NavigationMenu => Default.cshtml
+
+      @model IEnumerable<string>
+
+      <a class="btn btn-block btn-outline-secondary"
+         asp-action="Index"
+         asp-controller="Home"
+         asp-route-category="">Home</a>
+
+      @foreach(string category in Model)
+      {
+          <a class="btn btn-block btn-outline-secondary"
+             asp-action="Index" asp-controller="Home"
+             asp-route-category="@category"
+             asp-route-productPage="1">@category</a>
+      }
+
+
+                                                        Order Store (O4)
+B1: Sửa file HomeController.cs
+PagingInfo = new PagingInfo
+            {
+                CurrentPage = productPage,
+                ItemsPerPage = PageSize,
+                //TotalItems = repository.Products.Count() 
+                TotalItems = category == null ?
+                repository.Products.Count() :
+                repository.Products.Where(
+                    e => e.Category == category).Count()
+
+            },
+            CurrentCategory = category
+=> Phân trang theo category
+
+B2: Trong Startup.cs thêm:
+     services.AddControllersWithViews();
+            services.AddDbContext<StoreDbContext>(
+                opts =>
+                {
+                    opts.UseSqlServer
+                    (Configuration["ConnectionString:OrderStoreConnection"]);
+                }
+                );
+            services.AddScoped<IStoreRepository, EFStoreRepository>();
+            services.AddRazorPages();
+
+và
+               endpoints.MapDefaultControllerRoute();
+                endpoints.MapRazorPages();
+=> Tạo chức năng giỏ hàng
+
+B3 : Tạo folder Pages trong solution => add new item => _ViewImports
+@namespace OrderStore.Pages
+@using Microsoft.AspNetCore.Mvc.RazorPages
+@using OrderStore.Models
+@using OrderStore.Infrastructure
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers   
+
+B4: trong folder Pages tao Razor View => _ViewStart.cshtml
+     @{
+    Layout = "_CartLayout";
+}
+
+B5: trong folder Pages tao Razor View => _CartLayout.cshtml
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <title>Xinh store</title>
+    <link href="~/lib/twitter-bootstrap/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+    <div class="bg-dark text-white p-2">
+        <span class="navbar-brand ml-2">XINH STORE</span>
+    </div>
+    <div class="m-1 p-1">
+        @RenderBody()
+    </div>
+</body>
+</html>
+
+B6 :  trong folder Pages tao Razor Pages => _Cart.cshtml
+@page
+@model CartModel
+<h2>Your Cart</h2>
+localhost:5000/cart
+
+B7: trong folder Infrastructure tao file UrlExtensions.cs
+
+using Microsoft.AspNetCore.Http;
+
+namespace OrderStore.Infrastructure
+{
+    public static class UrlExtensions
+    {
+        public static string PathAndQuery(this HttpRequest request)
+            => request.QueryString.HasValue
+            ? $"{request.Path}{request.QueryString}"
+            : request.Path.ToString();
+    }
+}
+
+B8: Trong folder View suwra file _ViewInports.cshtml
+@using OrderStore
+@using OrderStore.Models.ViewModels
+@using OrderStore.Models
+@using OrderStore.Infrastructure
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, OrderStore
+
+B9: Sửa file ProductSummary.cshtml
+
+<div class="card card-outline-primary m-1 p-1">
+    <div class="bg-faded p-1">
+        <h4>@Model.Name</h4>
+        <span class="badge badge-pill badge-primary" style="float:right">
+            <small>@Model.Price.ToString("c")</small>
+        </span>
+    </div>
+    <form method="post" asp-page="/Cart" id="Model.ProductId">
+        <input type="hidden" asp-for="ProductID"/>
+        <input type="hidden" name="returnUrl"
+               value="@ViewContext.HttpContext.Request.PathAndQuery()"/>
+        <span class="card-text p-1">
+            @Model.Description
+            <button type="submit" class="btn btn-success btn-sm pull-right" style="float:right">
+                Add To Cart
+            </button>
+        </span>
+    </form>
+</div>
+
+B10: Sửa file StartUp.cs
+ services.AddRazorPages();
+
+            services.AddDistributedMemoryCache();
+            services.AddSession();
+
+và 
+app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseSession();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+B11:  Tao file Cart.cs
+public class Cart
+    {
+        public List<CartLine> Lines { get; set; } = new List<CartLine>();
+        public void AddItem(Product product, int quantity)
+        {
+            CartLine line = Lines
+                .Where(p => p.Product.ProductID == product.ProductID)
+                .FirstOrDefault();
+            if(line == null)
+            {
+                Lines.Add(new CartLine
+                {
+                    Product = product,
+                    Quantity = quantity
+                });
+            }
+            else
+            {
+                line.Quantity += quantity;
+            }
+        }
+        public void RemoveLine(Product product)
+            => Lines.RemoveAll(l => l.Product.ProductID == product.ProductID);
+
+        public decimal ComputeTotalValue()
+            => Lines.Sum(e => e.Product.Price * e.Quantity);
+        public void Clear()
+            => Lines.Clear();
+    }
+
+    public class CartLine
+    {
+        public int CartLineID { get; set; }
+        public Product Product { get; set; }
+        public int Quantity { get; set; }
+    }
+
+B12 : trong folder Infrastructure => SessionExtensions.cs
+ public static void SetJson(this ISession session, string key, object value)
+        {
+            session.SetString(key, JsonSerializer.Serialize(value));
+        }
+        public static T GetJson<T>(this ISession session, string key)
+        {
+            var sessionData = session.GetString(key);
+            return sessionData == null
+                ? default(T) : JsonSerializer.Deserialize<T>(sessionData);
+        }
+
+B13 : Trong folder Pages suwra file Cart.cshtml
+@page
+@model CartModel
+<h2>Your Cart</h2>
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Quantity</th>
+            <th>Item</th>
+            <th class="text-right">Price</th>
+            <th class="text-right">Subtotal</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var line in Model.Cart.Lines)
+        {
+            <tr>
+                <td class="text-center">@line.Quantity</td>
+                <td class="text-left">@line.Product.Name</td>
+                <td class="text-rigth">@line.Product.Price.ToString("c")</td>
+                <td lass="text-rigth">@(line.Quantity*line.Product.Price).ToString("c")</td>
+            </tr>
+        }
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" class="text-right">Total:</td>
+            <td  class="text-right">@Model.Cart.ComputeTotalValue().ToString("c")</td>
+        </tr>
+    </tfoot>
+</table>
+<div class="text-center">
+    <a class="btn btn-primary" href="@Model.ReturnUrl">Continue shopping</a>
+</div>
+
+B14: Suwa file Cart.cshtml.cs
+
+ private IStoreRepository repository;
+        public CartModel(IStoreRepository repo)
+        {
+            repository = repo;
+        }
+
+        public Cart Cart { get; set; }
+        public string ReturnUrl { get; set; }
+        public void OnGet(string returnUrl)
+        {
+            ReturnUrl = returnUrl ?? "/";
+            Cart = HttpContext.Session.GetJson<Cart>("cart") ?? new Cart();
+        }
+        public IActionResult OnPost(long productID, string returnUrl)
+        {
+            Product product = repository.Products
+                .FirstOrDefault(p => p.ProductID == productID);
+            Cart = HttpContext.Session.GetJson<Cart>("cart") ?? new Cart();
+            Cart.AddItem(product, 1);
+            HttpContext.Session.SetJson("cart", Cart);
+            return RedirectToPage(new { returnUrl = returnUrl });
+        }
+
                               

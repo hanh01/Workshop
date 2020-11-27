@@ -229,3 +229,8 @@ D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.csproj.C
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.MvcApplicationPartsAssemblyInfo.cache
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Views\Shared\ProductSummary.cshtml.g.cs
 D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Views\Shared\Components\NavigationMenu\Default.cshtml.g.cs
+D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\DrinkStores.csprojAssemblyReference.cache
+D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Pages\_ViewImports.cshtml.g.cs
+D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Pages\_ViewStart.cshtml.g.cs
+D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Pages\_CartLayout.cshtml.g.cs
+D:\Workshop\DrinkStores\DrinkStores\obj\Debug\netcoreapp3.1\Razor\Pages\Cart.cshtml.g.cs
