@@ -1,0 +1,11 @@
+﻿@model IQueryable<Employee>
+
+
+    @foreach (var p in Model)
+    {
+        <div>
+            <h3>@p.Name</h3>
+            @p.Gender
+            <h4>@p.Salary.ToString("c")</h4>
+        </div>
+    }
